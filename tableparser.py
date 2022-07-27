@@ -17,23 +17,18 @@ class parser:
 
     def parse_to_list(self):
         html_content = self.get_data()
-        html_tables = ET.HTML(html_content).findall(self.table_path)
+        parsedhtml = ET.HTML(html_content)
+        html_tables = parsedhtml.findall(self.table_path)
         rows_list = list(html_tables[0])
 
         threads = []
 
         for row in rows_list:
-            '''
-            case = row[0][0].text  # case number
-            status = row[1].text  # status
-            topic = row[2].text  # topic
-            engineer = row[3].text  # engineer
-            assigned = row[4].text  # assigned
-            created = row[5].text  # created
-            modified = row[6].text  # modified
-            '''
+
+            case = row[0][0].text if len(row[0]) > 0 else None # case number
+
             threads.append({
-                'case': row[0][0].text,
+                'case': case,
                 'status': row[1].text,
                 'topic': row[2].text,
                 'engineer': row[3].text,

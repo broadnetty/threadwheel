@@ -1,31 +1,63 @@
-import requests
-from lxml import etree as ET
-import parser as ps
+from tableparser import parser as ps
+import PySimpleGUI as sg
 
-
-page = ''
-with requests.Session() as s:
-    p = s.get("https://sc.support2.veeam.local/dashboards/rnd-issues-vbr", verify=False)
-    page = p.text
-
-html_content = page
-parsed_html = ET.HTML(html_content)
-html_tables = parsed_html.findall("body/main/div/div/table/tbody")
-first_table = html_tables[0]
-rows_list = list(first_table)
-
-threads = []
-
-for row in rows_list:
-    case = row[0][0].text  # case number
-    status = row[1].text  # status
-    topic = row[2].text  # topic
-    engineer = row[3].text  # engineer
-    assigned = row[4].text  # assigned
-    created = row[5].text  # created
-    modified = row[6].text  # modified
-    threads.append({'case': case,'status':status, 'topic': topic, 'engineer': engineer, 'assigned' :assigned, 'created': created, 'modified': modified})
-
-for thread in threads:
+'''
+for thread in ps().parse_to_list():
     if thread['status'] != 'Closed':
-        print(thread)
+        print(thread)'''
+datarows = ps().parse_to_list()
+headings = [ key for key in datarows[0] ]
+
+def resfresh_data():
+    datarows = ps().parse_to_list()
+
+    data=[]
+
+
+    for row in datarows:
+        set=[]
+        for key in row:
+            set.append(row[key])
+        data.append(set)
+
+    return data
+
+layout = [[sg.Table(values=resfresh_data(), headings=headings, max_col_width=75,
+                    auto_size_columns=True,
+                    # cols_justification=('left','center','right','c', 'l', 'bad'),       # Added on GitHub only as of June 2022
+                    display_row_numbers=False,
+                    justification='left',
+                    num_rows=30,
+                    #alternating_row_color='lightblue',
+                    key='-TABLE-',
+                    #selected_row_colors='red on yellow',
+                    enable_events=True,
+                    expand_x=False,
+                    expand_y=True,
+                    vertical_scroll_only=False,
+                    enable_click_events=True)],
+          [sg.Button('Read'), sg.Button('Change Colors'), sg.Button('Refresh')],
+          [sg.Text('Read = read which rows are selected')],
+          [sg.Text('Change Colors = Changes the colors of rows 8 and 9'), sg.Sizegrip()]]
+
+# ------ Create Window ------
+window = sg.Window('The Table Element', layout,
+                   # ttk_theme='clam',
+                   # font='Helvetica 25',
+                   resizable=True
+                   )
+
+# ------ Event Loop ------
+while True:
+    event, values = window.read()
+    print(event, values)
+    if event == sg.WIN_CLOSED:
+        break
+
+    if event == 'Refresh':
+        window['-TABLE-'].update(values=resfresh_data())
+    if event == 'Change Colors':
+        window['-TABLE-'].update(row_colors=((8, 'white', 'red'), (9, 'green')))
+
+window.close()
+
