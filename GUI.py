@@ -1,6 +1,7 @@
 from tableparser import parser as ps
 import PySimpleGUI as sg
 import sqlite3
+import textwrap
 
 '''
 for thread in ps().parse_to_list():
@@ -11,7 +12,17 @@ headings = [ 'Case', 'Status', 'Topic', 'Case owner', 'Active person', 'Date cre
 
 reverse_order = False
 
-agent = ps()
+try:
+    agent = ps()
+
+except Exception as e:
+    layout=[[sg.Text(textwrap.wrap('Error: ' + str(e), 200), size=(50,None))],[sg.Button('Ok')]]
+    window = sg.Window('Error', layout, element_justification='c')
+    while True:
+        event, values = window.read()
+        break
+    window.close()
+    exit(1)
 
 layout = [[sg.Table(values=agent.get_table_data(), headings=headings, max_col_width=75,
                     auto_size_columns=True,
@@ -27,7 +38,7 @@ layout = [[sg.Table(values=agent.get_table_data(), headings=headings, max_col_wi
                     expand_y=True,
                     vertical_scroll_only=False,
                     enable_click_events=True)],
-          [sg.Button('Sort'), sg.Button('Change Colors'), sg.Button('Refresh')],
+          [sg.Button('Sort'), sg.Button('Change Colors'), sg.Button('Refresh'), sg.Button('Filter'), sg.Combo(agent.get_engineers_list(), default_value='All', key='filter_engineer')],
           [sg.Text('sorts by cases')],
           [sg.Text('Change Colors = Changes the colors of rows 8 and 9'), sg.Sizegrip()]]
 
@@ -60,6 +71,9 @@ while True:
 
     if event == 'Change Colors':
         window['-TABLE-'].update(row_colors=((8, 'white', 'red'), (9, 'green')))
+
+    if event == 'Filter':
+        window['-TABLE-'].update(values=agent.get_filtered_data(values['filter_engineer']))
 
 window.close()
 

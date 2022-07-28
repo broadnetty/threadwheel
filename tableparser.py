@@ -1,6 +1,7 @@
 import requests
 from lxml import etree as ET
 from operator import itemgetter
+import numpy as np
 
 
 class parser:
@@ -60,3 +61,24 @@ class parser:
     def sort_by_column(self, col_num=0, reverse=False):
         self.table_data = sorted(self.table_data, key=itemgetter(col_num), reverse=reverse)
         pass
+
+    def get_engineers_list(self):
+        engineers = []
+        for row in self.table_data:
+            if row[3] not in engineers:
+                engineers.append(row[3])
+        engineers.sort()
+        engineers.insert(0,'All')
+        return engineers
+
+    def get_filtered_data(self, value, col_num=3):
+        rows = []
+
+        if value == 'All':
+            return self.refresh_data()
+
+        for row in self.table_data:
+            if row[col_num] == value:
+                rows.append(row)
+        self.table_data = rows
+        return self.table_data
