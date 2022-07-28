@@ -77,7 +77,7 @@ class parser:
         if value == 'All':
             return self.refresh_data()
 
-        for row in self.table_data:
+        for row in self.refresh_data():
             if row[col_num] == value:
                 rows.append(row)
         self.table_data = rows
