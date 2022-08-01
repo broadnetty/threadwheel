@@ -1,4 +1,4 @@
-#!.\venv\Scripts\python.exe
+#!.\venv\Scripts\pythonw.exe
 from tableparser import parser as ps
 import PySimpleGUI as sg
 import sqlite3

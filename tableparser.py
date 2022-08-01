@@ -68,17 +68,37 @@ class parser:
             if row[3] not in engineers:
                 engineers.append(row[3])
         engineers.sort()
-        engineers.insert(0,'All')
+        engineers.insert(0, 'All')
         return engineers
 
-    def get_filtered_data(self, value, col_num=3):
+    def get_status_list(self):
+        staus_list = []
+        for row in self.table_data:
+            if row[1] not in staus_list:
+                staus_list.append(row[1])
+        staus_list.sort()
+        staus_list.insert(0, 'All')
+        return staus_list
+
+    def get_filtered_column(self, value, col_num=3):
         rows = []
 
         if value == 'All':
-            return self.refresh_data()
+            return self.table_data
 
-        for row in self.refresh_data():
+        for row in self.table_data:
             if row[col_num] == value:
                 rows.append(row)
         self.table_data = rows
         return self.table_data
+
+    def get_crossfiltered_data(self, filter_data):
+        self.refresh_data()
+
+        rows = []
+        for key in filter_data:
+            self.table_data = self.get_filtered_column(filter_data[key], key)
+
+        #self.table_data = rows
+        return self.table_data
+
