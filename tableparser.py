@@ -1,6 +1,7 @@
 import requests
 from lxml import etree as ET
 from operator import itemgetter
+import datetime
 import numpy as np
 
 
@@ -102,3 +103,13 @@ class parser:
         #self.table_data = rows
         return self.table_data
 
+    def get_outdated(self, days):
+        lines = []
+        for i in range(0, len(self.table_data)):
+            delta = datetime.datetime.today() - datetime.datetime.strptime(self.table_data[i][6][:10], "%Y-%m-%d")
+            if delta.days > days:
+                if self.table_data[i][1] not in ['Closed', 'Closed No Response', 'Closed by Customer',
+                                                 'Pending Customer Acceptance', 'Awaiting Phone Call',
+                                                 'Customer Requested Hold']:
+                    lines.append(i)
+        return lines
